@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strain Finder — Mood</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #F2EEE7;
+    }
+ 
+    .wrap {
+      padding: 24px 16px 36px;
+      display: flex;
+      justify-content: center;
+    }
+ 
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(27, 58, 47, 0.10);
+      max-width: 456px;
+      width: 100%;
+      overflow: hidden;
+    }
+ 
+    .card-header {
+      background: #1B3A2F;
+      padding: 26px 28px 22px;
+      text-align: center;
+    }
+    .header-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #8AB898;
+      margin: 0 0 8px;
+    }
+    .header-title {
+      font-size: 1.28em;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.35;
+    }
+ 
+    .pips {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      padding: 18px 0 0;
+    }
+    .pip {
+      height: 6px;
+      width: 6px;
+      border-radius: 3px;
+      background: #D9E8D6;
+      transition: all 0.32s ease;
+    }
+    .pip.active {
+      width: 22px;
+      background: #1B3A2F;
+    }
+    .pip.done {
+      background: #8AB898;
+    }
+ 
+    .card-body {
+      padding: 22px 24px 28px;
+    }
+ 
+    .step {
+      display: none;
+    }
+    .step.visible {
+      display: block;
+      animation: rise 0.3s ease both;
+    }
+    .result {
+      display: none;
+    }
+    .result.visible {
+      display: block;
+      animation: rise 0.35s ease both;
+    }
+ 
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .q-counter {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #93AE96;
+      margin: 0 0 8px;
+    }
+    .q-text {
+      font-size: 1.13em;
+      font-weight: 700;
+      color: #1B3A2F;
+      margin: 0 0 17px;
+      line-height: 1.4;
+    }
+ 
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+ 
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 2px solid #E2EAE0;
+      background: #ffffff;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: border-color 0.18s ease, background 0.18s ease;
+    }
+    .option-btn:hover {
+      border-color: #1B3A2F;
+      background: #F0F5EF;
+    }
+    .option-btn.selected {
+      border-color: #1B3A2F;
+      background: #1B3A2F;
+    }
+    .option-btn.selected .opt-label { color: #ffffff; }
+    .option-btn.selected .opt-sub   { color: #8AB898; }
+    .option-btn.dimmed {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+ 
+    .opt-icon  { font-size: 1.5em; line-height: 1; flex-shrink: 0; }
+    .opt-text  { flex: 1; }
+    .opt-label { display: block; font-size: 0.93em; font-weight: 700; color: #1B3A2F; margin: 0 0 2px; }
+    .opt-sub   { display: block; font-size: 0.78em; color: #7A9A7E; }
+ 
+    .result-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .result-tag {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #93AE96;
+      margin: 0 0 6px;
+    }
+    .result-name {
+      font-size: 1.85em;
+      font-weight: 700;
+      color: #1B3A2F;
+      margin: 0 0 4px;
+      line-height: 1.1;
+    }
+    .result-sub {
+      font-size: 0.86em;
+      font-style: italic;
+      color: #4D7A57;
+      margin: 0;
+    }
+ 
+    .result-body {
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 0.9em;
+      line-height: 1.68;
+      margin-bottom: 16px;
+    }
+    .result-body.green {
+      background: #EAF1E7;
+      border-left: 4px solid #1B3A2F;
+      color: #1E3D23;
+    }
+    .result-body.lavender {
+      background: #EDE8F5;
+      border-left: 4px solid #6E54A8;
+      color: #2C1F50;
+    }
+ 
+    .cta-link {
+      display: block;
+      background: #1B3A2F;
+      color: #ffffff;
+      text-decoration: none;
+      text-align: center;
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.91em;
+      letter-spacing: 0.02em;
+      margin-bottom: 11px;
+      transition: background 0.2s ease;
+      box-sizing: border-box;
+    }
+    .cta-link:hover { background: #243F33; color: #ffffff; }
+ 
+    .footnote {
+      font-size: 0.77em;
+      color: #93AE96;
+      text-align: center;
+      line-height: 1.55;
+      margin: 0 0 4px;
+    }
+    .footnote a { color: #6E54A8; text-decoration: underline; }
+ 
+    .restart-btn {
+      display: block;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.79em;
+      color: #93AE96;
+      cursor: pointer;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      margin-top: 2px;
+    }
+    .restart-btn:hover { color: #1B3A2F; }
+  </style>
+</head>
+ 
+<body>
+  <div class="wrap">
+    <div class="card">
+ 
+      <div class="card-header">
+        <span class="header-label">Strain finder</span>
+        <h2 class="header-title">Which strain fits your moment?</h2>
+      </div>
+ 
+      <div class="pips" id="pips">
+        <div class="pip active" id="pip0"></div>
+        <div class="pip"        id="pip1"></div>
+        <div class="pip"        id="pip2"></div>
+      </div>
+ 
+      <div class="card-body">
+ 
+        <div class="step visible" id="step0">
+          <p class="q-counter">Question 1 of 3</p>
+          <p class="q-text">When are you planning your session?</p>
+          <div class="options">
+            <button class="option-btn" onclick="pick(0,'sd',this)">
+              <span class="opt-icon">&#9728;&#65039;</span>
+              <span class="opt-text">
+                <span class="opt-label">Morning or daytime</span>
+                <span class="opt-sub">I've got things to do</span>
+              </span>
+            </button>
+            <button class="option-btn" onclick="pick(0,'bd',this)">
+              <span class="opt-icon">&#127769;</span>
+              <span class="opt-text">
+                <span class="opt-label">Afternoon or evening</span>
+                <span class="opt-sub">Winding down from the day</span>
+              </span>
+            </button>
+          </div>
+        </div>
+ 
+        <div class="step" id="step1">
+          <p class="q-counter">Question 2 of 3</p>
+          <p class="q-text">What are you going for right now?</p>
+          <div class="options">
+            <button class="option-btn" onclick="pick(1,'sd',this)">
+              <span class="opt-icon">&#9889;</span>
+              <span class="opt-text">
+                <span class="opt-label">Creative energy and focus</span>
+                <span class="opt-sub">Ideas, movement, getting things done</span>
+              </span>
+            </button>
+            <button class="option-btn" onclick="pick(1,'bd',this)">
+              <span class="opt-icon">&#127807;</span>
+              <span class="opt-text">
+                <span class="opt-label">Ease and gentle relaxation</span>
+                <span class="opt-sub">Take the edge off, stay functional</span>
+              </span>
+            </button>
+          </div>
+        </div>
+ 
+        <div class="step" id="step2">
+          <p class="q-counter">Question 3 of 3</p>
+          <p class="q-text">How would you describe your experience level?</p>
+          <div class="options">
+            <button class="option-btn" onclick="pick(2,'new',this)">
+              <span class="opt-icon">&#127807;</span>
+              <span class="opt-text">
+                <span class="opt-label">Fairly new to cannabis</span>
+                <span class="opt-sub">Still finding my range</span>
+              </span>
+            </button>
+            <button class="option-btn" onclick="pick(2,'exp',this)">
+              <span class="opt-icon">&#128293;</span>
+              <span class="opt-text">
+                <span class="opt-label">Pretty experienced</span>
+                <span class="opt-sub">I know what I'm doing</span>
+              </span>
+            </button>
+          </div>
+        </div>
+ 
+        <div class="result" id="result"></div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+  <script>
+    var score = { sd: 0, bd: 0 };
+    var newUser = false;
+    var busy = false;
+    var currentStep = 0;
+ 
+    function pick(stepIndex, val, btn) {
+      if (busy) return;
+      busy = true;
+ 
+      if (val === 'sd')  { score.sd++; }
+      if (val === 'bd')  { score.bd++; }
+      if (val === 'new') { newUser = true; score.bd++; }
+      if (val === 'exp') { score.sd++; }
+ 
+      var siblings = btn.parentNode.querySelectorAll('.option-btn');
+      siblings.forEach(function(b) {
+        b.classList.add(b === btn ? 'selected' : 'dimmed');
+      });
+ 
+      setTimeout(function() {
+        currentStep++;
+        if (currentStep < 3) {
+          goToStep(currentStep);
+        } else {
+          showResult();
+        }
+        busy = false;
+      }, 580);
+    }
+ 
+    function goToStep(index) {
+      document.querySelectorAll('.step').forEach(function(el) {
+        el.classList.remove('visible');
+      });
+      document.getElementById('step' + index).classList.add('visible');
+      setPips(index);
+    }
+ 
+    function setPips(active) {
+      for (var i = 0; i < 3; i++) {
+        var p = document.getElementById('pip' + i);
+        p.className = 'pip';
+        if (i < active)      { p.classList.add('done'); }
+        else if (i === active){ p.classList.add('active'); }
+      }
+    }
+ 
+    function showResult() {
+      document.querySelectorAll('.step').forEach(function(el) {
+        el.classList.remove('visible');
+      });
+      for (var i = 0; i < 3; i++) {
+        document.getElementById('pip' + i).className = 'pip done';
+      }
+ 
+      var isSourDiesel = !newUser && score.sd >= 2;
+      var el = document.getElementById('result');
+ 
+      if (isSourDiesel) {
+        el.innerHTML =
+          '<div class="result-header">'
+            + '<span class="result-tag">Your match</span>'
+            + '<h3 class="result-name">Sour Diesel</h3>'
+            + '<p class="result-sub">Focused. Creative. Switched on.</p>'
+          + '</div>'
+          + '<div class="result-body green">'
+            + 'Your answers point to Sour Diesel. Fast-hitting cerebral energy, sharp creative drive, and a caryophyllene-limonene terpene profile that\'s been the daytime standard for over thirty years. The kind of strain that makes sitting still feel like exactly the wrong choice.'
+          + '</div>'
+          + '<a class="cta-link" href="https://mood.com/product/thca-sour-diesel-disposable-vape" target="_blank" rel="noopener">Shop Mood\'s Sour Diesel Vape &rarr;</a>'
+          + '<p class="footnote">Independently reviewed by Vice &middot; 4.49 stars across 360+ reviews &middot; Lab COA via QR code on product</p>'
+          + '<button class="restart-btn" onclick="restart()">&#8617; Take it again</button>';
+      } else {
+        el.innerHTML =
+          '<div class="result-header">'
+            + '<span class="result-tag">Your match</span>'
+            + '<h3 class="result-name">Blue Dream</h3>'
+            + '<p class="result-sub">Balanced. Gentle. All-day versatile.</p>'
+          + '</div>'
+          + '<div class="result-body lavender">'
+            + 'Your answers point to Blue Dream. A mood lift that blends into gentle body ease without tipping into sedation &mdash; the more forgiving pick, especially if you\'re newer to cannabis or prefer your experience to stay comfortable. Myrcene-forward with up to 2% CBD.'
+          + '</div>'
+          + '<p class="footnote">Mood doesn\'t carry Blue Dream &mdash; pick it up from a dispensary you trust.<br>Curious about Sour Diesel for another occasion? <a href="https://mood.com/blog/sour-diesel-effects-guide">Read Mood\'s strain guide.</a></p>'
+          + '<button class="restart-btn" onclick="restart()">&#8617; Take it again</button>';
+      }
+ 
+      el.classList.add('visible');
+    }
+ 
+    function restart() {
+      score = { sd: 0, bd: 0 };
+      newUser = false;
+      busy = false;
+      currentStep = 0;
+ 
+      document.querySelectorAll('.option-btn').forEach(function(b) {
+        b.classList.remove('selected', 'dimmed');
+      });
+ 
+      var r = document.getElementById('result');
+      r.className = 'result';
+      r.innerHTML = '';
+ 
+      goToStep(0);
+    }
+  </script>
+ 
+</body>
+</html>
